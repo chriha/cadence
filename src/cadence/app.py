@@ -432,8 +432,10 @@ class CadenceApp(App):
         async def pump() -> None:
             async for raw in t.proc.stdout:
                 line = raw.decode(errors="replace").rstrip("\n")
-                self.emit(t, line, fh)
                 self.scan_claude(t, line)
+                if t.is_claude and (line := core.claude_view(line)) is None:
+                    continue
+                self.emit(t, line, fh)
 
         try:
             await asyncio.wait_for(pump(), timeout)

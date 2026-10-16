@@ -161,6 +161,8 @@ set -g status-right '#(cd #{pane_current_path} && cadence status)'
 
 If a command looks like `claude … -p`, Cadence shows its cost and session id in the details pane. Add `--output-format json` so Claude Code prints a result line that contains `total_cost_usd` and `session_id`. Press `y` to copy the `claude --resume` command for the last run.
 
+For live output use `--output-format stream-json --verbose` instead: plain `json` prints a single blob only when the run ends. Cadence renders the events as readable text (assistant messages, `▸ Tool arg` lines, a final cost line) and still picks up cost and session id.
+
 ## Files
 
 ```
