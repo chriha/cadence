@@ -188,6 +188,28 @@ class Task:
             self.next_run = None
 
 
+def claude_view(line: str) -> str | None:
+    """Render a `--output-format stream-json` event as text; None = hide. Non-events pass through."""
+    if not line.startswith('{"type":'):
+        return line
+    try:
+        ev = json.loads(line)
+    except ValueError:
+        return line
+    if ev["type"] == "assistant":
+        out = []
+        for b in ev.get("message", {}).get("content", []):
+            if b.get("type") == "text":
+                out.append(b["text"].strip())
+            elif b.get("type") == "tool_use":
+                arg = next((str(v) for v in b.get("input", {}).values()), "")
+                out.append(f"▸ {b['name']} {arg[:100]}".rstrip())
+        return "\n".join(out) or None
+    if ev["type"] == "result":
+        return f"── claude done · ${ev.get('total_cost_usd') or 0:.3f} · {ev.get('num_turns', '?')} turns"
+    return None
+
+
 async def sh(cmd: str) -> str:
     p = await asyncio.create_subprocess_shell(
         cmd, cwd=ROOT, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL

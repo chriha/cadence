@@ -99,3 +99,11 @@ def test_init_and_find_root(tmp_path, capsys):
     assert core.find_root(sub) == tmp_path
     assert main(["status", "-C", str(tmp_path)]) == 0
     assert "cadence:" in capsys.readouterr().out
+
+
+def test_claude_view():
+    from cadence.core import claude_view
+    assert claude_view("plain") == "plain"
+    assert claude_view('{"type":"system"}') is None
+    assert claude_view('{"type":"assistant","message":{"content":[{"type":"text","text":"hi"},{"type":"tool_use","name":"Bash","input":{"command":"ls"}}]}}') == "hi\n▸ Bash ls"
+    assert "$0.042" in claude_view('{"type":"result","total_cost_usd":0.042,"num_turns":3}')
