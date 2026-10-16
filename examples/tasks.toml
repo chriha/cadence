@@ -1,0 +1,39 @@
+[[task]]
+name = "main-moved"
+cmd = "echo a1b2c3d chore: bump dependencies"
+trigger = { git = "origin/main" }
+notify = "always"
+
+[[task]]
+name = "tests"
+cmd = "echo 'Tests: 1284 passed'; sleep 1; echo 'Time: 41.2s'"
+trigger = { after = "main-moved" }
+timeout = "10m"
+retry = 1
+
+[[task]]
+name = "standup-digest"
+cmd = "echo '{\"total_cost_usd\":0.042,\"session_id\":\"9f3c2a\"}' # claude -p /standup --output-format json"
+trigger = { cron = "0 9 * * 1-5" }
+
+[[task]]
+name = "mr-review"
+cmd = "echo reviewing 3 merge requests; sleep 600"
+trigger = { every = "1h" }
+overlap = "skip"
+
+[[task]]
+name = "deploy-check"
+cmd = "echo checking release; echo 'ERROR: pipeline 4412 failed'; exit 1"
+trigger = { on_change = "echo release-v1" }
+notify = "always"
+
+[[task]]
+name = "php-changed"
+cmd = "echo lint"
+trigger = { files = "app/**/*.php" }
+
+[[task]]
+name = "cleanup"
+cmd = "echo done"
+trigger = { manual = true }
